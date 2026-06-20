@@ -16,7 +16,7 @@ services:
       - key: DB_POOL_MAX
         value: "5"
       - key: AUTH_DISABLED
-        value: "true"
+        value: "false"
       - key: ENABLE_JOBS
         value: "true"
       - key: SMTP_PORT
@@ -28,6 +28,10 @@ services:
       - key: SUPABASE_DISEASE_BUCKET
         value: "disease-scans"
       # Secret values — set these manually in the Render dashboard:
+      - key: JWT_SECRET
+        sync: false
+      - key: FAST2SMS_API_KEY
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL

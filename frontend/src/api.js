@@ -1,11 +1,15 @@
 // Tiny fetch client for the KrishiMitra API.
 const BASE = import.meta.env.VITE_API_BASE || '';
-const TOKEN = import.meta.env.VITE_API_TOKEN || '';
+
+function getToken() {
+  return localStorage.getItem('km_token') || '';
+}
 
 function headers(json = true) {
   const h = {};
   if (json) h['Content-Type'] = 'application/json';
-  if (TOKEN) h.Authorization = `Bearer ${TOKEN}`;
+  const tok = getToken();
+  if (tok) h.Authorization = `Bearer ${tok}`;
   return h;
 }
 
@@ -14,12 +18,29 @@ async function handle(resp) {
   const data = text ? JSON.parse(text) : null;
   if (!resp.ok) {
     const msg = (data && data.error && data.error.message) || resp.statusText;
-    throw new Error(msg);
+    const err = new Error(msg);
+    err.status = resp.status;
+    throw err;
   }
   return data;
 }
 
 export const api = {
+  // Public auth endpoints (no /api/v1 prefix).
+  requestOtp: (phone) =>
+    fetch(`${BASE}/api/auth/request-otp`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ phone }),
+    }).then(handle),
+
+  verifyOtp: (phone, otp) =>
+    fetch(`${BASE}/api/auth/verify-otp`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ phone, otp }),
+    }).then(handle),
+
   get: (path) => fetch(`${BASE}/api/v1${path}`, { headers: headers(false) }).then(handle),
   post: (path, body) =>
     fetch(`${BASE}/api/v1${path}`, {

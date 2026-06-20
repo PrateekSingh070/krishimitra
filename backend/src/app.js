@@ -7,6 +7,7 @@ import pinoHttp from 'pino-http';
 import { config } from './config/index.js';
 import { logger } from './config/logger.js';
 import v1Routes from './routes/index.js';
+import authRoutes from './routes/auth.js';
 import { notFound, errorHandler } from './middleware/error.js';
 
 export function createApp() {
@@ -32,6 +33,8 @@ export function createApp() {
   // Liveness/readiness probe (unauthenticated).
   app.get('/health', (_req, res) => res.json({ status: 'ok', env: config.env }));
 
+  // Public auth routes (no JWT required).
+  app.use('/api/auth', authRoutes);
   app.use('/api/v1', v1Routes);
 
   app.use(notFound);

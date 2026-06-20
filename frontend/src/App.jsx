@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { t } from './i18n.js';
+import Login from './pages/Login.jsx';
 import DiseaseScan from './pages/DiseaseScan.jsx';
 import Prices from './pages/Prices.jsx';
 import Schemes from './pages/Schemes.jsx';
@@ -8,12 +9,46 @@ import Profile from './pages/Profile.jsx';
 
 const TABS = ['scan', 'prices', 'schemes', 'alerts', 'profile'];
 
-export default function App() {
-  const [lang, setLang] = useState('hi');
-  const [tab, setTab] = useState('scan');
-  const [farmerId, setFarmerId] = useState(1001);
+// Restore session from localStorage.
+function loadSession() {
+  const token = localStorage.getItem('km_token');
+  const farmerId = localStorage.getItem('km_farmer_id');
+  const name = localStorage.getItem('km_name') || '';
+  if (token && farmerId) return { farmerId: Number(farmerId), name };
+  return null;
+}
 
-  const ctx = { lang, farmerId };
+export default function App() {
+  const [session, setSession] = useState(loadSession);
+  const [lang, setLang] = useState(() => localStorage.getItem('km_lang') || 'hi');
+  const [tab, setTab] = useState('scan');
+
+  function handleLogin({ farmerId, name, lang: farmerLang }) {
+    const preferredLang = farmerLang || lang;
+    setLang(preferredLang);
+    localStorage.setItem('km_lang', preferredLang);
+    setSession({ farmerId, name });
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('km_token');
+    localStorage.removeItem('km_farmer_id');
+    localStorage.removeItem('km_name');
+    setSession(null);
+    setTab('scan');
+  }
+
+  function toggleLang() {
+    const next = lang === 'hi' ? 'en' : 'hi';
+    setLang(next);
+    localStorage.setItem('km_lang', next);
+  }
+
+  if (!session) {
+    return <Login lang={lang} onLogin={handleLogin} />;
+  }
+
+  const ctx = { lang, farmerId: session.farmerId };
 
   return (
     <div className="app">
@@ -26,18 +61,14 @@ export default function App() {
           </div>
         </div>
         <div className="controls">
-          <label>
-            {t('farmer_id', lang)}:&nbsp;
-            <input
-              type="number"
-              min="1"
-              value={farmerId}
-              onChange={(e) => setFarmerId(Number(e.target.value) || 1)}
-              style={{ width: 70 }}
-            />
-          </label>
-          <button className="lang" onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}>
+          <span className="user-name">
+            {lang === 'hi' ? 'नमस्ते,' : 'Hi,'} {session.name}
+          </span>
+          <button className="lang" onClick={toggleLang}>
             {lang === 'hi' ? 'EN' : 'हिं'}
+          </button>
+          <button className="lang logout" onClick={handleLogout} title="Logout">
+            ⏻
           </button>
         </div>
       </header>

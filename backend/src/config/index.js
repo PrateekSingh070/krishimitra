@@ -66,6 +66,11 @@ export const config = {
     lookupFile: process.env.DISEASE_LOOKUP_FILE || 'disease_lookup.json',
   },
 
+  // SMS delivery via Fast2SMS (free, India). Leave blank to print OTP to logs.
+  sms: {
+    fast2smsKey: process.env.FAST2SMS_API_KEY || '',
+  },
+
   auth: {
     disabled: toBool(process.env.AUTH_DISABLED, false),
     secret: process.env.JWT_SECRET || '',

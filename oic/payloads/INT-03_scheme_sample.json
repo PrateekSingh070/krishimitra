@@ -1,0 +1,18 @@
+{
+  "count": 1,
+  "records": [
+    {
+      "scheme_name": "PM-KISAN Samman Nidhi",
+      "scheme_name_hi": "पीएम-किसान सम्मान निधि",
+      "ministry": "Ministry of Agriculture & Farmers Welfare",
+      "benefit_amount": "6000",
+      "max_land_acres": "5",
+      "states": "UP,MP,Punjab,Bihar,Rajasthan,Maharashtra",
+      "crops": "",
+      "max_income": "",
+      "apply_url": "https://pmkisan.gov.in/",
+      "deadline": "2026-12-31",
+      "status": "active"
+    }
+  ]
+}

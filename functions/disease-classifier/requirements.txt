@@ -1,0 +1,7 @@
+fdk>=0.1.83
+oci>=2.126.0
+requests>=2.31.0
+# Free path: local inference + image preprocessing (no paid Vision/Language AI)
+onnxruntime>=1.17.0
+pillow>=10.2.0
+numpy>=1.26.0

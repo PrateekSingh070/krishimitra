@@ -1,0 +1,23 @@
+# Node
+node_modules/
+*.log
+coverage/
+
+# Frontend build output
+frontend/dist/
+
+# ML model binary — large file, downloaded at build time by scripts/download-model.mjs
+backend/ml-artifacts/*.onnx
+ml-artifacts/*.onnx
+
+# Secrets / local env
+.env
+**/.env
+backend/wallet/
+infra/terraform/terraform.tfvars
+infra/terraform/*.tfstate*
+infra/terraform/.terraform/
+
+# OS
+.DS_Store
+Thumbs.db

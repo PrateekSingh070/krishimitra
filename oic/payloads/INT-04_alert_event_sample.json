@@ -1,0 +1,9 @@
+{
+  "rule_id": "WR-01",
+  "severity": "HIGH",
+  "params": {
+    "district": "Lucknow",
+    "state": "UP"
+  },
+  "emitted_at": "2026-06-19T16:30:00+05:30"
+}

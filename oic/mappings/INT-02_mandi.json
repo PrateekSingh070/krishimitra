@@ -1,0 +1,13 @@
+{
+  "target_table": "MANDI_PRICES",
+  "iterate": "$.records[*]",
+  "mapping": {
+    "CROP_ID": "lookup crops.crop_id WHERE crop_name = $.commodity (skip if not found)",
+    "MANDI_NAME": "$.market",
+    "DISTRICT": "$.district",
+    "STATE": "$.state",
+    "PRICE_PER_QTL": "number($.modal_price)",
+    "RECORDED_DATE": "to_date($.arrival_date, 'DD/MM/YYYY')",
+    "SOURCE": "'Agmarknet'"
+  }
+}

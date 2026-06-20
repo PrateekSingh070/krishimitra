@@ -1,0 +1,7 @@
+# Optional ML sidecar (live sowing/price inference). Not needed for the default
+# path, where the Node API serves predictions from the ml_predictions table.
+fastapi==0.115.0
+uvicorn==0.30.6
+prophet==1.1.5
+scikit-learn==1.5.1
+pandas==2.2.2

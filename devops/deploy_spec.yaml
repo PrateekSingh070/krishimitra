@@ -1,0 +1,45 @@
+version: 0.1
+component: deployment
+
+# OCI DevOps Deployment Pipeline (declarative reference).
+# The actual deployment stages are defined as pipeline resources in OCI DevOps
+# (or Terraform oci_devops_deploy_stage); this file documents the intended
+# rolling deployment to OCI Compute + the auxiliary deploy steps.
+
+deployment:
+  strategy: ROLLING
+  target:
+    kind: COMPUTE_INSTANCE_GROUP        # KrishiMitra API on OCI Compute behind LB
+    batchPercentage: 50                  # 50% at a time, health-gated
+  healthCheck:
+    path: /health
+    port: 3000
+    successThreshold: 1
+    timeoutInSeconds: 5
+
+  steps:
+    - name: "Pull image from OCIR"
+      action: PULL_IMAGE
+      image: "${OCIR_REGION}.ocir.io/${OCIR_NAMESPACE}/krishimitra-api:${IMAGE_TAG}"
+
+    - name: "Deploy API (rolling)"
+      action: ROLLING_RESTART
+      env:
+        # Injected from OCI Vault via the deployment environment, never inline.
+        DB_USER: "${vault:krishimitra/db_user}"
+        DB_PASSWORD: "${vault:krishimitra/db_password}"
+        DB_CONNECT_STRING: "krishimitradb_high"
+        JWT_JWKS_URI: "${vault:krishimitra/jwks_uri}"
+
+    - name: "Deploy APEX app via SQLcl"
+      action: RUN_SCRIPT
+      command: |
+        sql -L "${DB_USER}/${DB_PASSWORD}@${DB_CONNECT}" \
+          @apex/install/02_set_application_id.sql @f100.sql
+
+    - name: "Deploy OCI Functions"
+      action: RUN_SCRIPT
+      command: |
+        for fn in disease-classifier alert-dispatcher report-generator; do
+          (cd functions/$fn && fn -v deploy --app krishimitra-fn-app)
+        done

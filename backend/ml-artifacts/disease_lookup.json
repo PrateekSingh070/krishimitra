@@ -1,0 +1,32 @@
+{
+  "bean_spot": {
+    "disease": "Bean Angular Leaf Spot",
+    "severity": "MEDIUM",
+    "treatment": "Remove infected leaves and avoid overhead watering. Apply a copper-based fungicide and rotate crops next season.",
+    "treatment_hi": "संक्रमित पत्तियाँ हटाएँ और ऊपर से सिंचाई न करें। कॉपर-आधारित फफूंदनाशक छिड़कें और अगले मौसम में फसल चक्र अपनाएँ।"
+  },
+  "cassava_mosaic": {
+    "disease": "Cassava Mosaic Disease",
+    "severity": "HIGH",
+    "treatment": "Uproot and destroy infected plants. Use virus-free cuttings and control whitefly vectors with recommended insecticide.",
+    "treatment_hi": "संक्रमित पौधों को उखाड़कर नष्ट करें। वायरस-मुक्त कलम का उपयोग करें और अनुशंसित कीटनाशक से सफेद मक्खी पर नियंत्रण करें।"
+  },
+  "healthy": {
+    "disease": "Healthy",
+    "severity": "LOW",
+    "treatment": "No disease detected. Continue regular monitoring and good field practices.",
+    "treatment_hi": "कोई रोग नहीं मिला। नियमित निगरानी और अच्छी कृषि पद्धतियाँ जारी रखें।"
+  },
+  "maize_blight": {
+    "disease": "Maize Northern Leaf Blight",
+    "severity": "HIGH",
+    "treatment": "Apply a foliar fungicide (e.g. mancozeb/propiconazole) at early symptoms. Use resistant hybrids and remove crop debris.",
+    "treatment_hi": "शुरुआती लक्षणों पर पत्तियों पर फफूंदनाशक (जैसे मैंकोज़ेब/प्रोपिकोनाज़ोल) छिड़कें। प्रतिरोधी संकर किस्में लगाएँ और फसल अवशेष हटाएँ।"
+  },
+  "maize_rust": {
+    "disease": "Maize Common Rust",
+    "severity": "MEDIUM",
+    "treatment": "Apply a foliar fungicide if severe. Plant resistant hybrids and avoid late sowing.",
+    "treatment_hi": "गंभीर होने पर पत्तियों पर फफूंदनाशक छिड़कें। प्रतिरोधी संकर किस्में लगाएँ और देर से बुवाई से बचें।"
+  }
+}

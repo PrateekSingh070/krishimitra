@@ -1,0 +1,28 @@
+schema_version: 20180708
+name: alert-dispatcher
+version: 0.2.0
+runtime: python
+build_image: fnproject/python:3.11-dev
+run_image: fnproject/python:3.11
+entrypoint: /python/bin/fdk /function/func.py handler
+memory: 512
+timeout: 120
+config:
+  # [FREE PATH] Email unsent ATP alerts via SMTP (OCI Email Delivery free tier).
+  # Optional: the DB job JOB_ALERT_DISPATCH already does this on a schedule.
+  DB_USER: "krishimitra"
+  DB_CONNECT_STRING: "krishimitradb_high"
+  EMAIL_BATCH_SIZE: "500"
+  EMAIL_SMTP_HOST: "smtp.email.ap-mumbai-1.oci.oraclecloud.com"
+  EMAIL_SMTP_PORT: "587"
+  EMAIL_SENDER: "krishimitra@example.com"
+  # Secrets injected at runtime (Vault OCIDs or Function config), never committed:
+  #   DB_PASSWORD_SECRET_OCID / DB_PASSWORD
+  #   EMAIL_SMTP_USER + EMAIL_SMTP_PASSWORD_SECRET_OCID / EMAIL_SMTP_PASSWORD
+  #   TNS_ADMIN (wallet location for mTLS)
+  # --- OPTIONAL / PAID (only for func_stream_optional.py: Streaming + Fast2SMS) ---
+  # STREAM_OCID: ""
+  # STREAM_ENDPOINT: ""
+  # CONSUMER_GROUP: "alert-dispatcher"
+  # SMS_BATCH_SIZE: "1000"
+  # FAST2SMS_SECRET_OCID: ""

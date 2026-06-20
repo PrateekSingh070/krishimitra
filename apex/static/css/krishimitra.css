@@ -1,0 +1,52 @@
+/* =============================================================================
+   KrishiMitra :: APEX custom theme (Universal Theme overrides)
+   Upload as a static application file (#APP_IMAGES#krishimitra.css) and
+   reference it in Shared Components > User Interface Attributes.
+   ========================================================================== */
+
+:root {
+  --km-primary: #2D6A4F;   /* agriculture green */
+  --km-primary-dark: #1B4332;
+  --km-accent: #F4A261;    /* amber */
+  --km-bg: #F7FAF7;
+}
+
+/* Brand the Universal Theme primary color */
+.t-Header,
+.t-Button--hot,
+.a-MenuBar-item.is-current {
+  background-color: var(--km-primary) !important;
+  border-color: var(--km-primary) !important;
+}
+
+.t-Button--hot:hover { background-color: var(--km-primary-dark) !important; }
+
+a, .t-Button--link { color: var(--km-primary); }
+.u-accent, .t-Badge--accent { background-color: var(--km-accent) !important; }
+
+body { background-color: var(--km-bg); }
+
+/* Devanagari + Latin fonts */
+body, .t-Body {
+  font-family: 'Noto Sans', 'Noto Sans Devanagari', system-ui, sans-serif;
+}
+body.km-lang-hi, body.km-lang-hi .t-Body {
+  font-family: 'Noto Sans Devanagari', 'Noto Sans', system-ui, sans-serif;
+}
+
+/* Severity badges (disease scanner / alerts) */
+.km-sev { padding: 2px 10px; border-radius: 12px; color: #fff; font-weight: 600; }
+.km-sev-LOW      { background: #2a9d8f; }
+.km-sev-MEDIUM   { background: #e9c46a; color: #333; }
+.km-sev-HIGH     { background: #f4a261; }
+.km-sev-CRITICAL { background: #e76f51; }
+
+/* Mobile-first: comfortable tap targets on 375px screens */
+@media (max-width: 480px) {
+  .t-Button { min-height: 44px; }
+  .km-card { padding: 12px; }
+}
+
+/* Bilingual visibility: show only the active language's text */
+body.km-lang-hi [lang="en"] { display: none; }
+body.km-lang-en [lang="hi"] { display: none; }

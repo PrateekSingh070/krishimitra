@@ -1,0 +1,16 @@
+schema_version: 20180708
+name: model-server
+version: 0.1.0
+runtime: python
+build_image: fnproject/python:3.11-dev
+run_image: fnproject/python:3.11
+entrypoint: /python/bin/fdk /function/func.py handler
+memory: 2048
+timeout: 120
+config:
+  # [FREE PATH] Serves sowing + price predictions from models in Object Storage.
+  # Non-secret config only; the resource principal authorises Object Storage.
+  MODEL_BUCKET: "krishimitra-model-artifacts"
+  OBJECT_NAMESPACE: ""
+  SOWING_MODEL_OBJECT: "sowing_model.joblib"
+  PRICE_MODEL_PREFIX: "price_models/"

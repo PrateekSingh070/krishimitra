@@ -1,0 +1,28 @@
+{
+  "created": 1781880000,
+  "count": 2,
+  "records": [
+    {
+      "state": "Madhya Pradesh",
+      "district": "Indore",
+      "market": "Indore Mandi",
+      "commodity": "Wheat",
+      "variety": "Lokwan",
+      "arrival_date": "19/06/2026",
+      "min_price": "2350",
+      "max_price": "2520",
+      "modal_price": "2440"
+    },
+    {
+      "state": "Punjab",
+      "district": "Ludhiana",
+      "market": "Khanna Mandi",
+      "commodity": "Rice",
+      "variety": "PR-126",
+      "arrival_date": "19/06/2026",
+      "min_price": "3100",
+      "max_price": "3360",
+      "modal_price": "3250"
+    }
+  ]
+}

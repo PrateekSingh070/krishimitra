@@ -1,0 +1,16 @@
+{
+  "target_table": "GOVERNMENT_SCHEMES",
+  "upsert_key": "SCHEME_NAME",
+  "iterate": "$.records[*]",
+  "filter": "$.status == 'active'",
+  "mapping": {
+    "SCHEME_NAME": "$.scheme_name",
+    "SCHEME_NAME_HI": "$.scheme_name_hi",
+    "MINISTRY": "$.ministry",
+    "BENEFIT_AMOUNT": "number($.benefit_amount)",
+    "APPLY_URL": "$.apply_url",
+    "DEADLINE": "to_date($.deadline, 'YYYY-MM-DD')",
+    "IS_ACTIVE": "'Y'",
+    "ELIGIBILITY_JSON": "build: { min_land?, max_land: number($.max_land_acres), states: split($.states, ','), crops: split($.crops, ','), max_income?: number($.max_income) } (omit empty keys)"
+  }
+}

@@ -1,0 +1,67 @@
+version: 0.1
+component: build
+timeoutInSeconds: 3600
+runAs: root
+shell: bash
+
+# OCI DevOps Build Pipeline spec for KrishiMitra.
+# Stages: utPLSQL (gated) -> pytest -> jest -> docker build -> output artifact.
+# The image is pushed to OCIR by the deployment pipeline / a delivered-artifact
+# stage using the build's exported OUTPUT_IMAGE.
+
+env:
+  variables:
+    IMAGE_NAME: "krishimitra-api"
+  exportedVariables:
+    - IMAGE_TAG
+
+steps:
+  - type: Command
+    name: "Resolve image tag"
+    command: |
+      export IMAGE_TAG="$(echo ${OCI_TRIGGER_COMMIT_HASH:-latest} | cut -c1-8)"
+      echo "IMAGE_TAG=${IMAGE_TAG}"
+
+  - type: Command
+    name: "Stage 1 - utPLSQL tests"
+    command: |
+      # Requires SQLcl + utPLSQL installed in the build image and DB creds from
+      # the DevOps secret vault. Runs the PL/SQL unit suites.
+      if command -v sql >/dev/null 2>&1; then
+        sql -L "${DB_USER}/${DB_PASSWORD}@${DB_CONNECT}" <<'SQL'
+          @tests/utplsql/test_pkg_scheme_matcher.pkb
+          SET SERVEROUTPUT ON
+          BEGIN ut.run('test_pkg_scheme_matcher'); END;
+          /
+SQL
+      else
+        echo "SQLcl not present in build image; skipping utPLSQL (configure in PROD)."
+      fi
+
+  - type: Command
+    name: "Stage 2 - pytest (OCI Functions)"
+    command: |
+      cd functions
+      python -m pip install --quiet -r requirements-dev.txt
+      python -m pytest tests -q
+      cd ..
+
+  - type: Command
+    name: "Stage 3 - Jest (Node API)"
+    command: |
+      cd backend
+      npm ci --no-audit --no-fund
+      npm test
+      cd ..
+
+  - type: Command
+    name: "Stage 4 - Build Docker image"
+    command: |
+      cd backend
+      docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+      cd ..
+
+outputArtifacts:
+  - name: krishimitra_api_image
+    type: DOCKER_IMAGE
+    location: ${IMAGE_NAME}:${IMAGE_TAG}

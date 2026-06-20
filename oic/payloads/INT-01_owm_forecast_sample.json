@@ -1,0 +1,20 @@
+{
+  "city": { "name": "Lucknow", "country": "IN" },
+  "cnt": 2,
+  "list": [
+    {
+      "dt": 1781880000,
+      "dt_txt": "2026-06-19 12:00:00",
+      "main": { "temp": 34.2, "humidity": 58 },
+      "wind": { "speed": 3.6 },
+      "rain": { "3h": 0.0 }
+    },
+    {
+      "dt": 1781890800,
+      "dt_txt": "2026-06-19 15:00:00",
+      "main": { "temp": 33.1, "humidity": 61 },
+      "wind": { "speed": 4.1 },
+      "rain": { "3h": 1.2 }
+    }
+  ]
+}

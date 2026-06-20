@@ -1,0 +1,15 @@
+{
+  "target_table": "WEATHER_DATA",
+  "note": "Aggregate the first forecast entry as the current observation; store the full list as forecast_json.",
+  "mapping": {
+    "DISTRICT": "$.city.name",
+    "STATE": "(loop variable: current district's state)",
+    "RECORDED_AT": "to_timestamp($.list[0].dt_txt, 'YYYY-MM-DD HH24:MI:SS')",
+    "TEMP_CELSIUS": "$.list[0].main.temp",
+    "HUMIDITY_PCT": "$.list[0].main.humidity",
+    "RAINFALL_MM": "$.list[0].rain['3h'] (default 0)",
+    "WIND_SPEED_KMH": "$.list[0].wind.speed * 3.6",
+    "FORECAST_JSON": "$.list (serialized)",
+    "SOURCE": "'OWM'"
+  }
+}

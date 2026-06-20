@@ -1,0 +1,14 @@
+# OCI Data Science conda env: generalml_p38_cpu_v1 already includes most of these.
+# Pinned loosely for portability of the notebooks.
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
+xgboost>=2.0
+shap>=0.44
+prophet>=1.1.5
+matplotlib>=3.7
+joblib>=1.3
+oci>=2.126.0
+oracledb>=2.2.0
+# Disease classifier notebook (GPU job) additionally needs:
+# tensorflow>=2.15  (use the tensorflow28_p38_gpu_v1 conda env on a GPU shape)

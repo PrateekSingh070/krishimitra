@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: krishimitra-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: node src/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: DB_SSL
+        value: "true"
+      - key: DB_POOL_MAX
+        value: "5"
+      - key: AUTH_DISABLED
+        value: "true"
+      - key: ENABLE_JOBS
+        value: "true"
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: AGMARKNET_RESOURCE_ID
+        value: "9ef84268-d588-465a-a308-a864a43d0070"
+      - key: SUPABASE_DISEASE_BUCKET
+        value: "disease-scans"
+      # Secret values — set these manually in the Render dashboard:
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE
+        sync: false
+      - key: DATAGOV_API_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_SENDER
+        sync: false

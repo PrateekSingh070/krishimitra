@@ -1,0 +1,26 @@
+schema_version: 20180708
+name: disease-classifier
+version: 0.2.0
+runtime: python
+build_image: fnproject/python:3.11-dev
+run_image: fnproject/python:3.11
+entrypoint: /python/bin/fdk /function/func.py handler
+memory: 2048
+timeout: 120
+config:
+  # [FREE PATH] Local ONNX inference + pre-translated Hindi lookup.
+  # Non-secret config only; the ORDS bearer token (if used) is injected from a
+  # Vault secret / Function config at deploy time, never committed here.
+  ORDS_BASE_URL: "https://<ords-host>/ords/krishimitra/api/v1"
+  OBJECT_NAMESPACE: ""
+  # ONNX model + class labels live in the free Object Storage bucket.
+  MODEL_BUCKET: "krishimitra-model-artifacts"
+  MODEL_OBJECT: "disease_mobilenetv3.onnx"
+  CLASS_LABELS_OBJECT: "disease_class_labels.json"
+  # Treatment knowledge base (English + pre-translated Hindi).
+  DISEASE_LOOKUP_BUCKET: "krishimitra-model-artifacts"
+  DISEASE_LOOKUP_OBJECT: "disease_lookup.json"
+  # --- OPTIONAL / PAID (only if you re-enable func_vision_optional.py) ---
+  # COMPARTMENT_OCID: ""
+  # VISION_MODEL_OCID: ""
+  # LANGUAGE_TARGET: "hi"

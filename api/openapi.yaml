@@ -1,0 +1,540 @@
+openapi: 3.0.3
+info:
+  title: KrishiMitra API
+  version: 0.1.0
+  description: >
+    REST API for the KrishiMitra farmer advisory platform. Backed by Oracle
+    Autonomous DB (ATP) via node-oracledb. All endpoints require a Bearer JWT
+    (validated at OCI API Gateway and again at the service); /health is public.
+  contact:
+    name: KrishiMitra Platform Team
+servers:
+  - url: https://api.krishimitra.example/api/v1
+    description: Production (via OCI API Gateway)
+  - url: http://localhost:3000/api/v1
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Farmers
+  - name: Crops
+  - name: Disease Scans
+  - name: Mandi Prices
+  - name: Alerts
+  - name: Schemes
+  - name: Recommendations
+
+paths:
+  /farmers:
+    post:
+      tags: [Farmers]
+      summary: Register a farmer
+      description: >
+        Registers a farmer via PKG_FARMER.register_farmer. A raw Aadhaar number,
+        if supplied, is SHA-256 hashed in the database and never stored raw.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FarmerRegister'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  farmer_id: { type: integer, example: 1042 }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /farmers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Farmers]
+      summary: Get a farmer by id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Farmer' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Farmers]
+      summary: Update mutable profile fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FarmerUpdate' }
+      responses:
+        '204': { description: Updated }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Farmers]
+      summary: Soft-deactivate a farmer
+      responses:
+        '204': { description: Deactivated }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /crops:
+    get:
+      tags: [Crops]
+      summary: List crop master data
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Crop' }
+
+  /disease-scans:
+    get:
+      tags: [Disease Scans]
+      summary: List disease scans
+      parameters:
+        - in: query
+          name: farmer_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/DiseaseScanSummary' }
+    post:
+      tags: [Disease Scans]
+      summary: Record a disease scan result
+      description: >
+        Persists a scan result (normally written by the OCI Vision
+        disease-classifier Function). A HIGH/CRITICAL severity automatically
+        generates an alert via TRG_DISEASE_SCAN_ALERT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DiseaseScanCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scan_id: { type: integer }
+        '400': { $ref: '#/components/responses/ValidationError' }
+
+  /disease-scans/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Disease Scans]
+      summary: Get a disease scan (with treatment text)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DiseaseScan' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /mandi-prices:
+    get:
+      tags: [Mandi Prices]
+      summary: Latest price per crop+mandi
+      parameters:
+        - in: query
+          name: crop_id
+          schema: { type: integer }
+        - in: query
+          name: mandi
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MandiPrice' }
+
+  /mandi-prices/history:
+    get:
+      tags: [Mandi Prices]
+      summary: Price time series (for charts/forecasts)
+      parameters:
+        - in: query
+          name: crop_id
+          schema: { type: integer }
+        - in: query
+          name: mandi
+          schema: { type: string }
+        - in: query
+          name: days
+          schema: { type: integer, default: 90 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MandiPricePoint' }
+
+  /alerts:
+    get:
+      tags: [Alerts]
+      summary: Alert history
+      parameters:
+        - in: query
+          name: farmer_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Alert' }
+
+  /alerts/dispatch:
+    post:
+      tags: [Alerts]
+      summary: Batch-dispatch pending alerts (admin)
+      description: Calls PKG_ALERTS.send_batch. Requires the `admin` role.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                channel: { type: string, enum: [SMS, EMAIL, APP], default: SMS }
+                batch_size: { type: integer, default: 1000, maximum: 5000 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dispatched: { type: integer }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /schemes:
+    get:
+      tags: [Schemes]
+      summary: List active government schemes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Scheme' }
+
+  /schemes/farmer/{farmerId}:
+    parameters:
+      - in: path
+        name: farmerId
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Schemes]
+      summary: Personalised ranked scheme matches
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/SchemeMatch' }
+
+  /schemes/farmer/{farmerId}/match:
+    parameters:
+      - in: path
+        name: farmerId
+        required: true
+        schema: { type: integer }
+    post:
+      tags: [Schemes]
+      summary: Recompute scheme matches for a farmer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matched: { type: integer }
+
+  /recommendations/{farmerCropId}:
+    parameters:
+      - in: path
+        name: farmerCropId
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Recommendations]
+      summary: Stored ML predictions for a planting
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MlPrediction' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdPath:
+      in: path
+      name: id
+      required: true
+      schema: { type: integer }
+
+  responses:
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: Conflict (e.g. duplicate phone)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Insufficient role
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            status: { type: integer }
+            message: { type: string }
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  path: { type: string }
+                  message: { type: string }
+
+    FarmerRegister:
+      type: object
+      required: [name, phone]
+      properties:
+        name: { type: string, maxLength: 100 }
+        phone: { type: string, pattern: '^[0-9]{10,15}$' }
+        aadhaar:
+          type: string
+          pattern: '^[0-9]{12}$'
+          description: Raw Aadhaar; hashed (SHA-256) in DB, never stored raw.
+        state: { type: string }
+        district: { type: string }
+        village: { type: string }
+        land_acres: { type: number }
+        soil_type:
+          type: string
+          enum: [Sandy, Loamy, Clay, Black, Silt, Peaty, Chalky]
+        preferred_lang: { type: string, enum: [hi, en] }
+
+    FarmerUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        state: { type: string }
+        district: { type: string }
+        village: { type: string }
+        land_acres: { type: number }
+        soil_type:
+          type: string
+          enum: [Sandy, Loamy, Clay, Black, Silt, Peaty, Chalky]
+        preferred_lang: { type: string, enum: [hi, en] }
+
+    Farmer:
+      type: object
+      properties:
+        FARMER_ID: { type: integer }
+        NAME: { type: string }
+        PHONE: { type: string }
+        STATE: { type: string }
+        DISTRICT: { type: string }
+        VILLAGE: { type: string }
+        LAND_ACRES: { type: number }
+        SOIL_TYPE: { type: string }
+        PREFERRED_LANG: { type: string }
+        IS_ACTIVE: { type: string }
+
+    Crop:
+      type: object
+      properties:
+        CROP_ID: { type: integer }
+        CROP_NAME: { type: string }
+        CROP_NAME_HINDI: { type: string }
+        CATEGORY: { type: string }
+        AVG_GROW_DAYS: { type: integer }
+        WATER_NEED_MM: { type: integer }
+        IDEAL_TEMP_MIN: { type: number }
+        IDEAL_TEMP_MAX: { type: number }
+        IDEAL_SOIL_TYPES: { type: string }
+
+    DiseaseScanCreate:
+      type: object
+      required: [farmer_id, image_url]
+      properties:
+        farmer_id: { type: integer }
+        farmer_crop_id: { type: integer }
+        image_url: { type: string, format: uri }
+        disease_detected: { type: string }
+        confidence_score: { type: number }
+        severity: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+        treatment_advice: { type: string }
+        treatment_hindi: { type: string }
+        oci_vision_req: { type: string }
+
+    DiseaseScanSummary:
+      type: object
+      properties:
+        SCAN_ID: { type: integer }
+        FARMER_ID: { type: integer }
+        FARMER_CROP_ID: { type: integer }
+        IMAGE_URL: { type: string }
+        DISEASE_DETECTED: { type: string }
+        CONFIDENCE_SCORE: { type: number }
+        SEVERITY: { type: string }
+        SCAN_TIMESTAMP: { type: string, format: date-time }
+
+    DiseaseScan:
+      allOf:
+        - $ref: '#/components/schemas/DiseaseScanSummary'
+        - type: object
+          properties:
+            TREATMENT_ADVICE: { type: string }
+            TREATMENT_HINDI: { type: string }
+            OCI_VISION_REQ: { type: string }
+
+    MandiPrice:
+      type: object
+      properties:
+        PRICE_ID: { type: integer }
+        CROP_ID: { type: integer }
+        CROP_NAME: { type: string }
+        CROP_NAME_HINDI: { type: string }
+        MANDI_NAME: { type: string }
+        DISTRICT: { type: string }
+        STATE: { type: string }
+        PRICE_PER_QTL: { type: number }
+        RECORDED_DATE: { type: string, format: date }
+
+    MandiPricePoint:
+      type: object
+      properties:
+        CROP_ID: { type: integer }
+        MANDI_NAME: { type: string }
+        PRICE_PER_QTL: { type: number }
+        RECORDED_DATE: { type: string, format: date }
+
+    Alert:
+      type: object
+      properties:
+        ALERT_ID: { type: integer }
+        ALERT_TYPE: { type: string }
+        FARMER_ID: { type: integer }
+        MESSAGE_EN: { type: string }
+        MESSAGE_HI: { type: string }
+        SEVERITY: { type: string }
+        IS_SENT: { type: string }
+        SENT_AT: { type: string, format: date-time }
+        CHANNEL: { type: string }
+        CREATED_AT: { type: string, format: date-time }
+
+    Scheme:
+      type: object
+      properties:
+        SCHEME_ID: { type: integer }
+        SCHEME_NAME: { type: string }
+        SCHEME_NAME_HI: { type: string }
+        MINISTRY: { type: string }
+        BENEFIT_AMOUNT: { type: number }
+        APPLY_URL: { type: string }
+        DEADLINE: { type: string, format: date }
+
+    SchemeMatch:
+      allOf:
+        - $ref: '#/components/schemas/Scheme'
+        - type: object
+          properties:
+            MATCH_SCORE: { type: number }
+
+    MlPrediction:
+      type: object
+      properties:
+        PREDICTION_ID: { type: integer }
+        FARMER_CROP_ID: { type: integer }
+        MODEL_TYPE: { type: string, enum: [YIELD, PRICE, SOWING] }
+        PREDICTED_VALUE: { type: number }
+        UNIT: { type: string }
+        CONFIDENCE_PCT: { type: number }
+        PREDICTION_DATE: { type: string, format: date }
+        MODEL_VERSION: { type: string }

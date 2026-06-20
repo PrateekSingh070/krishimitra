@@ -71,6 +71,13 @@ export const config = {
     fast2smsKey: process.env.FAST2SMS_API_KEY || '',
   },
 
+  // WhatsApp Cloud API (Meta) — free 1000 conversations/month.
+  // Get token + phone number ID from developers.facebook.com/apps
+  whatsapp: {
+    token: process.env.META_WHATSAPP_TOKEN || '',
+    phoneId: process.env.META_WHATSAPP_PHONE_ID || '',
+  },
+
   auth: {
     disabled: toBool(process.env.AUTH_DISABLED, false),
     secret: process.env.JWT_SECRET || '',

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { api } from '../api.js';
 import { t } from '../i18n.js';
 
-export default function Login({ lang, onLogin }) {
+export default function Login({ lang, onLogin, onRegister }) {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState('phone'); // 'phone' | 'otp'
@@ -97,9 +97,10 @@ export default function Login({ lang, onLogin }) {
         )}
 
         <p className="login-hint">
-          {lang === 'hi'
-            ? 'केवल पंजीकृत किसान लॉग इन कर सकते हैं।'
-            : 'Only registered farmers can log in.'}
+          {lang === 'hi' ? 'नए किसान?' : 'New farmer?'}{' '}
+          <button className="btn-link" style={{ display: 'inline', padding: 0 }} onClick={onRegister}>
+            {lang === 'hi' ? 'यहाँ पंजीकरण करें' : 'Register here'}
+          </button>
         </p>
       </div>
     </div>

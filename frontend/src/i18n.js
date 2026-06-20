@@ -3,10 +3,12 @@ export const STRINGS = {
   appName: { en: 'KrishiMitra', hi: 'कृषिमित्र' },
   tagline: { en: 'Farmer Advisory & Crop Intelligence', hi: 'किसान सलाह एवं फसल बुद्धिमत्ता' },
   nav_scan: { en: 'Disease Scan', hi: 'रोग जाँच' },
+  nav_weather: { en: 'Weather', hi: 'मौसम' },
   nav_prices: { en: 'Market Prices', hi: 'मंडी भाव' },
   nav_schemes: { en: 'Govt Schemes', hi: 'सरकारी योजनाएँ' },
   nav_alerts: { en: 'Alerts', hi: 'सूचनाएँ' },
   nav_profile: { en: 'My Profile', hi: 'मेरी प्रोफ़ाइल' },
+  nav_admin: { en: 'Admin', hi: 'एडमिन' },
 
   farmer_id: { en: 'Farmer ID', hi: 'किसान आईडी' },
   load: { en: 'Load', hi: 'लोड करें' },

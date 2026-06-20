@@ -6,6 +6,7 @@ import mandiPrices from './mandiPrices.js';
 import alerts from './alerts.js';
 import schemes from './schemes.js';
 import recommendations from './recommendations.js';
+import weather from './weather.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
@@ -20,5 +21,6 @@ router.use('/mandi-prices', mandiPrices);
 router.use('/alerts', alerts);
 router.use('/schemes', schemes);
 router.use('/recommendations', recommendations);
+router.use('/weather', weather);
 
 export default router;

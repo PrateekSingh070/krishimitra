@@ -1,13 +1,26 @@
 import React, { useState } from 'react';
 import { t } from './i18n.js';
 import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
+import Admin from './pages/Admin.jsx';
 import DiseaseScan from './pages/DiseaseScan.jsx';
+import Weather from './pages/Weather.jsx';
 import Prices from './pages/Prices.jsx';
 import Schemes from './pages/Schemes.jsx';
 import Alerts from './pages/Alerts.jsx';
 import Profile from './pages/Profile.jsx';
 
-const TABS = ['scan', 'prices', 'schemes', 'alerts', 'profile'];
+// Decode JWT payload to check roles (no verification needed on client).
+function getTokenRoles() {
+  try {
+    const tok = localStorage.getItem('km_token');
+    if (!tok) return [];
+    const payload = JSON.parse(atob(tok.split('.')[1]));
+    return payload.roles || [];
+  } catch { return []; }
+}
+
+const TABS = ['scan', 'weather', 'prices', 'schemes', 'alerts', 'profile'];
 
 // Restore session from localStorage.
 function loadSession() {
@@ -22,6 +35,7 @@ export default function App() {
   const [session, setSession] = useState(loadSession);
   const [lang, setLang] = useState(() => localStorage.getItem('km_lang') || 'hi');
   const [tab, setTab] = useState('scan');
+  const [showRegister, setShowRegister] = useState(false);
 
   function handleLogin({ farmerId, name, lang: farmerLang }) {
     const preferredLang = farmerLang || lang;
@@ -45,10 +59,15 @@ export default function App() {
   }
 
   if (!session) {
-    return <Login lang={lang} onLogin={handleLogin} />;
+    if (showRegister) {
+      return <Register lang={lang} onBack={() => setShowRegister(false)} />;
+    }
+    return <Login lang={lang} onLogin={handleLogin} onRegister={() => setShowRegister(true)} />;
   }
 
   const ctx = { lang, farmerId: session.farmerId };
+  const isAdmin = getTokenRoles().includes('admin');
+  const visibleTabs = isAdmin ? [...TABS, 'admin'] : TABS;
 
   return (
     <div className="app">
@@ -74,7 +93,7 @@ export default function App() {
       </header>
 
       <nav className="tabs">
-        {TABS.map((key) => (
+        {visibleTabs.map((key) => (
           <button
             key={key}
             className={tab === key ? 'active' : ''}
@@ -87,10 +106,12 @@ export default function App() {
 
       <main className="content">
         {tab === 'scan' && <DiseaseScan {...ctx} />}
+        {tab === 'weather' && <Weather {...ctx} />}
         {tab === 'prices' && <Prices {...ctx} />}
         {tab === 'schemes' && <Schemes {...ctx} />}
         {tab === 'alerts' && <Alerts {...ctx} />}
         {tab === 'profile' && <Profile {...ctx} />}
+        {tab === 'admin' && <Admin {...ctx} />}
       </main>
     </div>
   );

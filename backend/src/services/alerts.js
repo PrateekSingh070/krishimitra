@@ -1,5 +1,6 @@
 import { query, one, rows, withTransaction } from '../db/pool.js';
 import { farmerEmail, sendEmail } from './notify.js';
+import { sendWhatsAppAlert } from './whatsapp.js';
 
 // Port of db/plsql/pkg_alerts.{pks,pkb}.
 // Default channel EMAIL (free). 'APP' = in-app only. 'SMS' is the optional paid
@@ -58,6 +59,12 @@ async function deliverAlert(alert) {
   }
   if (alert.channel === CHANNEL.APP) {
     return true; // in-app only
+  }
+  if (alert.channel === 'WHATSAPP') {
+    const farmer = await one('SELECT phone FROM farmers WHERE farmer_id = $1', [alert.farmer_id]);
+    if (farmer?.phone) {
+      return sendWhatsAppAlert(farmer.phone, alert.message_en || alert.message_hi || '');
+    }
   }
   return false; // SMS (optional/paid)
 }

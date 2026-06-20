@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Dev server proxies /api to the Node backend so the UI can use relative URLs.
 export default defineConfig({
   plugins: [react()],
   server: {
@@ -10,6 +9,16 @@ export default defineConfig({
       '/api': {
         target: process.env.VITE_API_TARGET || 'http://localhost:3000',
         changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          charts: ['recharts'],
+        },
       },
     },
   },

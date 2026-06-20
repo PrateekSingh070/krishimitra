@@ -35,6 +35,19 @@ export function createApp() {
 
   // Public auth routes (no JWT required).
   app.use('/api/auth', authRoutes);
+
+  // Public self-registration endpoint (no JWT — new farmer has no token yet).
+  // Handled before the authenticated v1 router.
+  app.post('/api/v1/farmers', async (req, res, next) => {
+    try {
+      const { registerFarmer } = await import('./services/farmerService.js');
+      const farmerId = await registerFarmer(req.body);
+      res.status(201).json({ farmer_id: farmerId });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   app.use('/api/v1', v1Routes);
 
   app.use(notFound);

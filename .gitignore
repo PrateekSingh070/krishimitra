@@ -5,6 +5,8 @@ coverage/
 
 # Frontend build output
 frontend/dist/
+.vercel/
+frontend/.vercel/
 
 # ML model binaries — tracked directly (<=5 MB, within GitHub limits)
 # To exclude: uncomment the lines below
@@ -22,3 +24,5 @@ infra/terraform/.terraform/
 # OS
 .DS_Store
 Thumbs.db
+
+.vercel

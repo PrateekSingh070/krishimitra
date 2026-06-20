@@ -2,6 +2,36 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { t } from '../i18n.js';
 
+const HINDI_CROP_NAMES = {
+  Wheat: 'गेहूँ',
+  Rice: 'चावल',
+  Maize: 'मक्का',
+  Bajra: 'बाजरा',
+  Jowar: 'ज्वार',
+  Sugarcane: 'गन्ना',
+  Cotton: 'कपास',
+  Soybean: 'सोयाबीन',
+  Groundnut: 'मूँगफली',
+  Mustard: 'सरसों',
+  Gram: 'चना',
+  Lentil: 'मसूर',
+  Barley: 'जौ',
+  Potato: 'आलू',
+  Onion: 'प्याज',
+  Tomato: 'टमाटर',
+  Watermelon: 'तरबूज',
+  Cucumber: 'खीरा',
+  Moong: 'मूँग',
+  Turmeric: 'हल्दी',
+};
+
+function cropName(row, lang) {
+  if (lang !== 'hi') return row.crop_name;
+  const fallback = HINDI_CROP_NAMES[row.crop_name] || row.crop_name;
+  const name = row.crop_name_hindi || fallback;
+  return name.includes('à') ? fallback : name;
+}
+
 export default function Prices({ lang }) {
   const [items, setItems] = useState(null);
   const [error, setError] = useState(null);
@@ -32,7 +62,7 @@ export default function Prices({ lang }) {
         <tbody>
           {items.map((r) => (
             <tr key={r.price_id}>
-              <td>{lang === 'hi' ? r.crop_name_hindi || r.crop_name : r.crop_name}</td>
+              <td>{cropName(r, lang)}</td>
               <td>{r.mandi_name}</td>
               <td>₹{Number(r.price_per_qtl).toLocaleString('en-IN')}</td>
               <td>{String(r.recorded_date).slice(0, 10)}</td>

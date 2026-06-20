@@ -6,9 +6,10 @@ coverage/
 # Frontend build output
 frontend/dist/
 
-# ML model binary — large file, downloaded at build time by scripts/download-model.mjs
-backend/ml-artifacts/*.onnx
-ml-artifacts/*.onnx
+# ML model binaries — tracked directly (<=5 MB, within GitHub limits)
+# To exclude: uncomment the lines below
+# backend/ml-artifacts/*.onnx
+# ml-artifacts/*.onnx
 
 # Secrets / local env
 .env

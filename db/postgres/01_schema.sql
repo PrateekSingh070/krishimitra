@@ -171,14 +171,14 @@ CREATE TABLE alerts (
     severity         varchar(20),
     is_sent          char(1)       DEFAULT 'N',
     sent_at          timestamptz,
-    channel          varchar(20),                     -- SMS / EMAIL / APP
+    channel          varchar(20),                     -- SMS / EMAIL / APP / WHATSAPP
     created_at       timestamptz   DEFAULT now() NOT NULL,
     updated_at       timestamptz   DEFAULT now() NOT NULL,
     created_by       varchar(100)  DEFAULT current_user,
-    CONSTRAINT ck_al_type     CHECK (alert_type IN ('DISEASE', 'WEATHER', 'PEST', 'PRICE_DROP', 'PRICE_RISE', 'SCHEME')),
+    CONSTRAINT ck_al_type     CHECK (alert_type IN ('DISEASE', 'WEATHER', 'PEST', 'PRICE_DROP', 'PRICE_RISE', 'SCHEME', 'ADMIN')),
     CONSTRAINT ck_al_severity CHECK (severity IS NULL OR severity IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
     CONSTRAINT ck_al_is_sent  CHECK (is_sent IN ('Y', 'N')),
-    CONSTRAINT ck_al_channel  CHECK (channel IS NULL OR channel IN ('SMS', 'EMAIL', 'APP'))
+    CONSTRAINT ck_al_channel  CHECK (channel IS NULL OR channel IN ('SMS', 'EMAIL', 'APP', 'WHATSAPP'))
 );
 COMMENT ON TABLE alerts IS 'Outbound farmer alerts; dispatched (email + in-app) by the alerts service.';
 

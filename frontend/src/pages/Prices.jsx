@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { t } from '../i18n.js';
+import { displayText } from '../text.js';
 
 const HINDI_CROP_NAMES = {
   Wheat: 'गेहूँ',
@@ -29,7 +30,7 @@ function cropName(row, lang) {
   if (lang !== 'hi') return row.crop_name;
   const fallback = HINDI_CROP_NAMES[row.crop_name] || row.crop_name;
   const name = row.crop_name_hindi || fallback;
-  return name.includes('à') ? fallback : name;
+  return displayText(name, fallback);
 }
 
 export default function Prices({ lang }) {

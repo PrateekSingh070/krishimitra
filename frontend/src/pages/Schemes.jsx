@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { t } from '../i18n.js';
+import { displayText } from '../text.js';
 
 export default function Schemes({ lang, farmerId }) {
   const [items, setItems] = useState(null);
@@ -56,7 +57,7 @@ export default function Schemes({ lang, farmerId }) {
           <tbody>
             {items.map((r) => (
               <tr key={r.scheme_id}>
-                <td>{lang === 'hi' ? r.scheme_name_hi || r.scheme_name : r.scheme_name}</td>
+                <td>{lang === 'hi' ? displayText(r.scheme_name_hi, r.scheme_name) : r.scheme_name}</td>
                 <td>{r.ministry}</td>
                 <td>{Number(r.benefit_amount) ? `₹${Number(r.benefit_amount).toLocaleString('en-IN')}` : '—'}</td>
                 <td>{r.match_score != null ? `${r.match_score}%` : '—'}</td>

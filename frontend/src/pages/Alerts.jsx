@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { t } from '../i18n.js';
+import { displayText } from '../text.js';
 
 export default function Alerts({ lang, farmerId }) {
   const [items, setItems] = useState(null);
@@ -29,7 +30,7 @@ export default function Alerts({ lang, farmerId }) {
               <span className="alert-type">{a.alert_type}</span>
               <span className="alert-date">{String(a.created_at).slice(0, 10)}</span>
             </div>
-            <p>{lang === 'hi' ? a.message_hi || a.message_en : a.message_en}</p>
+            <p>{lang === 'hi' ? displayText(a.message_hi, a.message_en) : a.message_en}</p>
           </li>
         ))}
       </ul>

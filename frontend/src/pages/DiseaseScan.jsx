@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { api, fileToBase64 } from '../api.js';
 import { t } from '../i18n.js';
+import { displayText } from '../text.js';
 
 export default function DiseaseScan({ lang, farmerId }) {
   const [file, setFile] = useState(null);
@@ -62,7 +63,7 @@ export default function DiseaseScan({ lang, farmerId }) {
           </p>
           <p>
             <strong>{t('treatment', lang)}:</strong>{' '}
-            {lang === 'hi' ? result.treatment_hindi : result.treatment_advice}
+            {lang === 'hi' ? displayText(result.treatment_hindi, result.treatment_advice) : result.treatment_advice}
           </p>
         </div>
       )}

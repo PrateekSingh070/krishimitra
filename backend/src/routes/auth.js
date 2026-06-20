@@ -27,9 +27,14 @@ router.post(
 
       const otp = generateOtp();
       storeOtp(phone, otp);
-      await sendOtpSms(phone, otp);
+      const smsSent = await sendOtpSms(phone, otp);
 
-      res.json({ message: `OTP sent to ${phone.slice(0, 5)}XXXXX`, expires_in: 300 });
+      res.json({
+        message: smsSent
+          ? `OTP sent to ${phone.slice(0, 5)}XXXXX`
+          : `OTP generated (SMS unavailable — check server logs)`,
+        expires_in: 300,
+      });
     } catch (err) {
       next(err);
     }

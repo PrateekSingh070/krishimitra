@@ -65,7 +65,10 @@ export async function sendOtpSms(phone, otp) {
 
   const json = await resp.json();
   if (!json.return) {
-    logger.error({ phone, json }, 'Fast2SMS delivery failed');
+    // SMS failed (e.g. Fast2SMS website verification pending).
+    // Fall back to log so OTP is still accessible during setup.
+    logger.error({ phone, json }, 'Fast2SMS delivery failed — falling back to log');
+    logger.warn({ phone }, `[FALLBACK] OTP for ${phone}: ${otp}`);
     return false;
   }
   return true;

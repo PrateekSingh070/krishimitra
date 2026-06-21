@@ -9,6 +9,15 @@ const SOIL_HINDI = {
   Silt: 'सिल्ट', Peaty: 'पीट', Chalky: 'चाक',
 };
 
+function RegField({ lang, label, labelHi, children }) {
+  return (
+    <div className="reg-field">
+      <label>{lang === 'hi' ? labelHi : label}</label>
+      {children}
+    </div>
+  );
+}
+
 export default function Register({ lang, onBack }) {
   const [form, setForm] = useState({
     name: '', phone: '', email: '', state: '', district: '',
@@ -67,13 +76,6 @@ export default function Register({ lang, onBack }) {
     );
   }
 
-  const F = ({ label, labelHi, children }) => (
-    <div className="reg-field">
-      <label>{lang === 'hi' ? labelHi : label}</label>
-      {children}
-    </div>
-  );
-
   return (
     <div className="login-wrap" style={{ alignItems: 'flex-start', paddingTop: 32 }}>
       <div className="login-card" style={{ maxWidth: 480 }}>
@@ -86,43 +88,43 @@ export default function Register({ lang, onBack }) {
         </div>
 
         <form onSubmit={handleSubmit} className="reg-form">
-          <F label="Full Name *" labelHi="पूरा नाम *">
+          <RegField lang={lang} label="Full Name *" labelHi="पूरा नाम *">
             <input value={form.name} onChange={e => set('name', e.target.value)} required />
-          </F>
-          <F label="Mobile Number *" labelHi="मोबाइल नंबर *">
+          </RegField>
+          <RegField lang={lang} label="Mobile Number *" labelHi="मोबाइल नंबर *">
             <input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)}
               placeholder="10-digit number" maxLength={15} required />
-          </F>
-          <F label="State" labelHi="राज्य">
+          </RegField>
+          <RegField lang={lang} label="State" labelHi="राज्य">
             <input value={form.state} onChange={e => set('state', e.target.value)} placeholder="e.g. Maharashtra" />
-          </F>
-          <F label="District" labelHi="ज़िला">
+          </RegField>
+          <RegField lang={lang} label="District" labelHi="ज़िला">
             <input value={form.district} onChange={e => set('district', e.target.value)} placeholder="e.g. Pune" />
-          </F>
-          <F label="Village" labelHi="गाँव">
+          </RegField>
+          <RegField lang={lang} label="Village" labelHi="गाँव">
             <input value={form.village} onChange={e => set('village', e.target.value)} />
-          </F>
-          <F label="Land (acres)" labelHi="भूमि (एकड़)">
+          </RegField>
+          <RegField lang={lang} label="Land (acres)" labelHi="भूमि (एकड़)">
             <input type="number" min="0" step="0.1" value={form.land_acres}
               onChange={e => set('land_acres', e.target.value)} />
-          </F>
-          <F label="Soil Type" labelHi="मिट्टी का प्रकार">
+          </RegField>
+          <RegField lang={lang} label="Soil Type" labelHi="मिट्टी का प्रकार">
             <select value={form.soil_type} onChange={e => set('soil_type', e.target.value)}>
               <option value="">{lang === 'hi' ? '— चुनें —' : '— Select —'}</option>
               {SOIL_TYPES.map(s => (
                 <option key={s} value={s}>{lang === 'hi' ? SOIL_HINDI[s] : s}</option>
               ))}
             </select>
-          </F>
-          <F label="Email (optional)" labelHi="ईमेल (वैकल्पिक)">
+          </RegField>
+          <RegField lang={lang} label="Email (optional)" labelHi="ईमेल (वैकल्पिक)">
             <input type="email" value={form.email} onChange={e => set('email', e.target.value)} />
-          </F>
-          <F label="Preferred Language" labelHi="पसंदीदा भाषा">
+          </RegField>
+          <RegField lang={lang} label="Preferred Language" labelHi="पसंदीदा भाषा">
             <select value={form.preferred_lang} onChange={e => set('preferred_lang', e.target.value)}>
               <option value="hi">हिंदी</option>
               <option value="en">English</option>
             </select>
-          </F>
+          </RegField>
 
           {error && <p className="login-error">{error}</p>}
 

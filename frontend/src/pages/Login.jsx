@@ -4,33 +4,16 @@ import { t } from '../i18n.js';
 
 export default function Login({ lang, onLogin, onRegister }) {
   const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState('phone'); // 'phone' | 'otp'
+  const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [info, setInfo] = useState('');
 
-  async function handleRequestOtp(e) {
+  async function handleLogin(e) {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const res = await api.requestOtp(phone.trim());
-      setInfo(res.message || 'OTP sent!');
-      setStep('otp');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleVerifyOtp(e) {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      const res = await api.verifyOtp(phone.trim(), otp.trim());
+      const res = await api.login(phone.trim(), pin.trim());
       localStorage.setItem('km_token', res.token);
       localStorage.setItem('km_farmer_id', String(res.farmer_id));
       localStorage.setItem('km_name', res.name || '');
@@ -51,50 +34,35 @@ export default function Login({ lang, onLogin, onRegister }) {
           <p className="login-sub">{t('tagline', lang)}</p>
         </div>
 
-        {step === 'phone' ? (
-          <form onSubmit={handleRequestOtp} className="login-form">
-            <label>{lang === 'hi' ? 'मोबाइल नंबर' : 'Mobile Number'}</label>
-            <input
-              type="tel"
-              placeholder="10-digit mobile number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              maxLength={15}
-              required
-              autoFocus
-            />
-            {error && <p className="login-error">{error}</p>}
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? '…' : lang === 'hi' ? 'OTP भेजें' : 'Send OTP'}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp} className="login-form">
-            {info && <p className="login-info">{info}</p>}
-            <label>{lang === 'hi' ? '6-अंकीय OTP दर्ज करें' : 'Enter 6-digit OTP'}</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="_ _ _ _ _ _"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              maxLength={6}
-              required
-              autoFocus
-            />
-            {error && <p className="login-error">{error}</p>}
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? '…' : lang === 'hi' ? 'लॉग इन करें' : 'Log In'}
-            </button>
-            <button
-              type="button"
-              className="btn-link"
-              onClick={() => { setStep('phone'); setOtp(''); setError(''); }}
-            >
-              {lang === 'hi' ? '← नंबर बदलें' : '← Change number'}
-            </button>
-          </form>
-        )}
+        <form onSubmit={handleLogin} className="login-form">
+          <label>{lang === 'hi' ? 'मोबाइल नंबर' : 'Mobile Number'}</label>
+          <input
+            type="tel"
+            placeholder="10-digit mobile number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            maxLength={15}
+            required
+            autoFocus
+          />
+
+          <label>{lang === 'hi' ? 'PIN' : 'PIN'}</label>
+          <input
+            type="password"
+            inputMode="numeric"
+            placeholder={lang === 'hi' ? '4-6 अंकों का PIN' : '4-6 digit PIN'}
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            minLength={4}
+            maxLength={6}
+            required
+          />
+
+          {error && <p className="login-error">{error}</p>}
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? '…' : lang === 'hi' ? 'लॉग इन करें' : 'Log In'}
+          </button>
+        </form>
 
         <p className="login-hint">
           {lang === 'hi' ? 'नए किसान?' : 'New farmer?'}{' '}

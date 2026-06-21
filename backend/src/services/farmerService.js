@@ -10,18 +10,40 @@ export function hashAadhaar(raw) {
   return crypto.createHash('sha256').update(raw, 'utf8').digest('hex');
 }
 
+export function hashPin(pin, salt = crypto.randomBytes(16).toString('hex')) {
+  if (!pin) return { hash: null, salt: null };
+  const hash = crypto.pbkdf2Sync(String(pin), salt, 120000, 32, 'sha256').toString('hex');
+  return { hash, salt };
+}
+
+export function verifyPin(pin, hash, salt) {
+  if (!pin || !hash || !salt) return false;
+  const candidate = hashPin(pin, salt).hash;
+  return crypto.timingSafeEqual(Buffer.from(candidate, 'hex'), Buffer.from(hash, 'hex'));
+}
+
 export async function registerFarmer(b) {
   try {
+    if (!/^[0-9]{10,15}$/.test(String(b.phone || ''))) {
+      throw new ApiError(400, 'phone must be 10-15 digits');
+    }
+    if (b.pin !== undefined && !/^[0-9]{4,6}$/.test(String(b.pin))) {
+      throw new ApiError(400, 'PIN must be 4-6 digits');
+    }
+
+    const { hash: pinHash, salt: pinSalt } = hashPin(b.pin ?? String(b.phone).slice(-4));
     const row = await one(
-      `INSERT INTO farmers (name, phone, email, aadhaar_hash, state, district,
+      `INSERT INTO farmers (name, phone, email, aadhaar_hash, pin_hash, pin_salt, state, district,
                             village, land_acres, soil_type, preferred_lang, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'Y')
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'Y')
        RETURNING farmer_id`,
       [
         b.name,
         b.phone,
         b.email ?? null,
         hashAadhaar(b.aadhaar),
+        pinHash,
+        pinSalt,
         b.state ?? null,
         b.district ?? null,
         b.village ?? null,

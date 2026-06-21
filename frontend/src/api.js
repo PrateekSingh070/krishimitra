@@ -27,6 +27,13 @@ async function handle(resp) {
 
 export const api = {
   // Public auth endpoints (no /api/v1 prefix).
+  login: (phone, pin) =>
+    fetch(`${BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ phone, pin }),
+    }).then(handle),
+
   requestOtp: (phone) =>
     fetch(`${BASE}/api/auth/request-otp`, {
       method: 'POST',

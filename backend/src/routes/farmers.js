@@ -16,6 +16,7 @@ const SOIL_TYPES = ['Sandy', 'Loamy', 'Clay', 'Black', 'Silt', 'Peaty', 'Chalky'
 const registerSchema = z.object({
   name: z.string().min(1).max(100),
   phone: z.string().regex(/^[0-9]{10,15}$/, 'phone must be 10-15 digits'),
+  pin: z.string().regex(/^[0-9]{4,6}$/, 'PIN must be 4-6 digits').optional(),
   email: z.string().email().max(150).optional(),
   // Raw Aadhaar is accepted over TLS, hashed in the app, and never persisted raw.
   aadhaar: z.string().regex(/^[0-9]{12}$/).optional(),
@@ -27,7 +28,7 @@ const registerSchema = z.object({
   preferred_lang: z.enum(['hi', 'en']).optional(),
 });
 
-const updateSchema = registerSchema.partial().omit({ phone: true, aadhaar: true });
+const updateSchema = registerSchema.partial().omit({ phone: true, pin: true, aadhaar: true });
 
 const idSchema = z.object({ id: z.coerce.number().int().positive() });
 

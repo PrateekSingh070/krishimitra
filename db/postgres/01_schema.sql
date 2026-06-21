@@ -32,6 +32,8 @@ CREATE TABLE farmers (
     phone            varchar(15)   NOT NULL,
     email            varchar(150),                    -- alert delivery via email
     aadhaar_hash     varchar(64),                     -- SHA-256 hash only, never raw
+    pin_hash         varchar(128),                    -- salted PBKDF2 hash for PIN login
+    pin_salt         varchar(64),                     -- random salt for PIN hash
     state            varchar(50),
     district         varchar(50),
     village          varchar(100),

@@ -22,6 +22,7 @@ export default function Register({ lang, onBack }) {
   const [form, setForm] = useState({
     name: '', phone: '', email: '', state: '', district: '',
     village: '', land_acres: '', soil_type: '', preferred_lang: lang,
+    pin: '', confirm_pin: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -35,10 +36,14 @@ export default function Register({ lang, onBack }) {
     setLoading(true);
     try {
       const body = { ...form };
+      if (body.pin !== body.confirm_pin) {
+        throw new Error(lang === 'hi' ? 'PIN मेल नहीं खा रहा है।' : 'PINs do not match.');
+      }
       if (body.land_acres) body.land_acres = Number(body.land_acres);
       else delete body.land_acres;
       if (!body.email) delete body.email;
       if (!body.soil_type) delete body.soil_type;
+      delete body.confirm_pin;
 
       const resp = await fetch(`${BASE}/api/v1/farmers`, {
         method: 'POST',
@@ -64,8 +69,8 @@ export default function Register({ lang, onBack }) {
             <h2>{lang === 'hi' ? 'पंजीकरण सफल!' : 'Registration Successful!'}</h2>
             <p className="login-sub">
               {lang === 'hi'
-                ? 'आपका पंजीकरण हो गया है। अब आप अपने मोबाइल नंबर से लॉग इन कर सकते हैं।'
-                : 'You are registered. You can now log in with your mobile number.'}
+                ? 'आपका पंजीकरण हो गया है। अब आप मोबाइल नंबर और PIN से लॉग इन कर सकते हैं।'
+                : 'You are registered. You can now log in with your mobile number and PIN.'}
             </p>
           </div>
           <button className="btn-primary" onClick={onBack}>
@@ -94,6 +99,16 @@ export default function Register({ lang, onBack }) {
           <RegField lang={lang} label="Mobile Number *" labelHi="मोबाइल नंबर *">
             <input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)}
               placeholder="10-digit number" maxLength={15} required />
+          </RegField>
+          <RegField lang={lang} label="Set PIN *" labelHi="PIN सेट करें *">
+            <input type="password" inputMode="numeric" value={form.pin}
+              onChange={e => set('pin', e.target.value)} placeholder="4-6 digit PIN"
+              minLength={4} maxLength={6} required />
+          </RegField>
+          <RegField lang={lang} label="Confirm PIN *" labelHi="PIN फिर से लिखें *">
+            <input type="password" inputMode="numeric" value={form.confirm_pin}
+              onChange={e => set('confirm_pin', e.target.value)} placeholder="Repeat PIN"
+              minLength={4} maxLength={6} required />
           </RegField>
           <RegField lang={lang} label="State" labelHi="राज्य">
             <input value={form.state} onChange={e => set('state', e.target.value)} placeholder="e.g. Maharashtra" />

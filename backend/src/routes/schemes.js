@@ -21,6 +21,7 @@ router.get(
   '/farmer/:farmerId',
   validate(farmerIdSchema, 'params'),
   asyncHandler(async (req, res) => {
+    await matchFarmer(req.params.farmerId);
     res.json({ items: await listFarmerMatches(req.params.farmerId) });
   }),
 );

@@ -7,6 +7,22 @@ import { generateAlert, SEVERITY, CHANNEL } from './alerts.js';
 
 export const ALERT_THRESHOLD = 80; // score above which a farmer is auto-alerted
 
+const STATE_ALIASES = {
+  'UTTAR PRADESH': 'UP',
+  UP: 'UP',
+  'MADHYA PRADESH': 'MP',
+  MP: 'MP',
+  MAHARASHTRA: 'MAHARASHTRA',
+  PUNJAB: 'PUNJAB',
+  BIHAR: 'BIHAR',
+  RAJASTHAN: 'RAJASTHAN',
+};
+
+function normalizeState(value) {
+  const state = String(value || '').trim().toUpperCase();
+  return STATE_ALIASES[state] || state;
+}
+
 // Score one farmer against one scheme's eligibility object (0-100).
 // `farmer` = { land_acres, state }; `cropNames` = array of UPPER crop names.
 export function scoreMatch(farmer, cropNames, eligibility) {
@@ -15,7 +31,7 @@ export function scoreMatch(farmer, cropNames, eligibility) {
   let criteria = 0;
   let met = 0;
   const land = farmer.land_acres == null ? null : Number(farmer.land_acres);
-  const state = (farmer.state || '').toUpperCase();
+  const state = normalizeState(farmer.state);
 
   if (eligibility.min_land != null) {
     criteria += 1;
@@ -27,7 +43,7 @@ export function scoreMatch(farmer, cropNames, eligibility) {
   }
   if (Array.isArray(eligibility.states)) {
     criteria += 1;
-    if (eligibility.states.some((s) => String(s).toUpperCase() === state)) met += 1;
+    if (eligibility.states.some((s) => normalizeState(s) === state)) met += 1;
   }
   if (Array.isArray(eligibility.crops)) {
     criteria += 1;
@@ -144,11 +160,13 @@ export async function listActiveSchemes() {
 export async function listFarmerMatches(farmerId) {
   return rows(
     `SELECT gs.scheme_id, gs.scheme_name, gs.scheme_name_hi, gs.ministry,
-            gs.benefit_amount, gs.apply_url, gs.deadline, sm.match_score
-     FROM scheme_matches sm
-     JOIN government_schemes gs ON gs.scheme_id = sm.scheme_id
-     WHERE sm.farmer_id = $1 AND gs.is_active = 'Y'
-     ORDER BY sm.match_score DESC`,
+            gs.benefit_amount, gs.apply_url, gs.deadline,
+            COALESCE(sm.match_score, 0) AS match_score
+     FROM government_schemes gs
+     LEFT JOIN scheme_matches sm
+       ON sm.scheme_id = gs.scheme_id AND sm.farmer_id = $1
+     WHERE gs.is_active = 'Y' AND (gs.deadline IS NULL OR gs.deadline >= current_date)
+     ORDER BY COALESCE(sm.match_score, 0) DESC, gs.scheme_name`,
     [farmerId],
   );
 }

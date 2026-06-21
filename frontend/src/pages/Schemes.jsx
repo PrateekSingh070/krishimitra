@@ -35,6 +35,11 @@ export default function Schemes({ lang, farmerId }) {
   return (
     <section className="card">
       <h2>{t('nav_schemes', lang)}</h2>
+      <p className="hint">
+        {lang === 'hi'
+          ? 'सभी सक्रिय योजनाएँ दिखाई गई हैं। मिलान प्रतिशत आपकी प्रोफ़ाइल के आधार पर है।'
+          : 'All active schemes are shown. Match percentage is based on your profile.'}
+      </p>
       <button onClick={recompute} disabled={busy}>
         {busy ? t('loading', lang) : t('recompute', lang)}
       </button>

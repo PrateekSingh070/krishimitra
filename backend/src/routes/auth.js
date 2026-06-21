@@ -6,24 +6,18 @@ import { config } from '../config/index.js';
 import { generateOtp, storeOtp, verifyOtp, sendOtpSms } from '../services/otpService.js';
 import { ApiError } from '../middleware/error.js';
 import { validate } from '../middleware/validate.js';
+import { registerFarmer } from '../services/farmerService.js';
 
 const router = Router();
 
 // POST /api/auth/request-otp  { phone }
-// Generates a 6-digit OTP, stores it, and sends via SMS.
+// Generates a 6-digit OTP for both existing and new farmer phone numbers.
 router.post(
   '/request-otp',
   validate(z.object({ phone: z.string().min(10).max(15) })),
   async (req, res, next) => {
     try {
       const { phone } = req.body;
-
-      // Only registered farmers can log in.
-      const farmer = await one('SELECT farmer_id, name FROM farmers WHERE phone = $1 AND is_active = $2', [
-        phone,
-        'Y',
-      ]);
-      if (!farmer) throw new ApiError(404, 'Phone number not registered. Contact your Krishi Mitra to register.');
 
       const otp = generateOtp();
       storeOtp(phone, otp);
@@ -43,6 +37,7 @@ router.post(
 
 // POST /api/auth/verify-otp  { phone, otp }
 // Verifies OTP and returns a signed JWT containing farmer_id.
+// If the phone is new, create a minimal farmer profile automatically.
 router.post(
   '/verify-otp',
   validate(z.object({ phone: z.string().min(10).max(15), otp: z.string().length(6) })),
@@ -61,11 +56,24 @@ router.post(
         throw new ApiError(401, messages[result.reason] || 'OTP verification failed.');
       }
 
-      const farmer = await one(
+      let farmer = await one(
         'SELECT farmer_id, name, preferred_lang FROM farmers WHERE phone = $1 AND is_active = $2',
         [phone, 'Y'],
       );
-      if (!farmer) throw new ApiError(404, 'Farmer not found.');
+      let isNewFarmer = false;
+
+      if (!farmer) {
+        const farmerId = await registerFarmer({
+          name: `Farmer ${phone.slice(-4)}`,
+          phone,
+          preferred_lang: 'hi',
+        });
+        farmer = await one(
+          'SELECT farmer_id, name, preferred_lang FROM farmers WHERE farmer_id = $1',
+          [farmerId],
+        );
+        isNewFarmer = true;
+      }
 
       if (!config.auth.secret) {
         throw new ApiError(500, 'JWT_SECRET is not configured on the server.');
@@ -88,6 +96,7 @@ router.post(
         farmer_id: farmer.farmer_id,
         name: farmer.name,
         lang: farmer.preferred_lang,
+        is_new_farmer: isNewFarmer,
       });
     } catch (err) {
       next(err);

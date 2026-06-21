@@ -159,18 +159,22 @@ SELECT
     'seed.' || picks.rn
 FROM picks, d;
 
--- --- 365 days of Mandi prices for 10 crops x 3 mandis -------------------------
+-- --- 365 days of Mandi prices for ALL crops x 7 mandis -----------------------
 -- Deterministic-ish swing (sinusoid + noise) so PR-01/PR-02 rules can trigger.
 WITH m AS (
     SELECT * FROM (VALUES
         (1,'Azadpur Mandi','Delhi','Delhi'),
         (2,'Indore Mandi','Indore','MP'),
-        (3,'Khanna Mandi','Ludhiana','Punjab')
+        (3,'Khanna Mandi','Ludhiana','Punjab'),
+        (4,'Lucknow Mandi','Lucknow','UP'),
+        (5,'Pune Mandi','Pune','Maharashtra'),
+        (6,'Jaipur Mandi','Jaipur','Rajasthan'),
+        (7,'Patna Mandi','Patna','Bihar')
     ) AS t(mi, mandi_name, district, state)
 ), c AS (
     SELECT crop_id, row_number() OVER (ORDER BY crop_id) AS ci,
            1500 + random() * 4500 AS base
-    FROM crops ORDER BY crop_id LIMIT 10
+    FROM crops ORDER BY crop_id
 )
 INSERT INTO mandi_prices (crop_id, mandi_name, district, state, price_per_qtl, recorded_date, source)
 SELECT

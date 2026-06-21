@@ -47,23 +47,35 @@ export default function Weather({ lang, farmerId }) {
     if (!farmerId) return;
     api.get(`/farmers/${farmerId}`).then((f) => {
       setProfile(f);
-      if (f.district) setDistrict(f.district);
+      const location = f.district || f.village;
+      if (location) {
+        setDistrict(location);
+        fetchWeather(location, f.state, f.village);
+      }
     }).catch(() => {});
-  }, [farmerId]);
+  }, [farmerId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-fetch when district is known
-  useEffect(() => {
-    if (district) fetchWeather(district);
-  }, [district]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  async function fetchWeather(d) {
+  async function fetchWeather(d, stateOverride = null, fallbackLocation = null) {
+    const trimmed = String(d || '').trim();
+    if (!trimmed) return;
     setLoading(true);
     setError('');
     setWeather(null);
     try {
-      const data = await api.get(`/weather?district=${encodeURIComponent(d)}&state=${encodeURIComponent(profile?.state || '')}`);
+      const data = await api.get(`/weather?district=${encodeURIComponent(trimmed)}&state=${encodeURIComponent(stateOverride ?? profile?.state ?? '')}`);
       setWeather(data);
     } catch (err) {
+      const fallback = String(fallbackLocation || '').trim();
+      if (err.status === 404 && fallback && fallback.toLowerCase() !== trimmed.toLowerCase()) {
+        try {
+          const data = await api.get(`/weather?district=${encodeURIComponent(fallback)}&state=${encodeURIComponent(stateOverride ?? profile?.state ?? '')}`);
+          setDistrict(fallback);
+          setWeather(data);
+          return;
+        } catch {
+          // Show the original error; it better describes the first location tried.
+        }
+      }
       setError(err.message);
     } finally {
       setLoading(false);
@@ -71,6 +83,7 @@ export default function Weather({ lang, farmerId }) {
   }
 
   const daily = weather?.daily;
+  const weatherCodes = daily?.weathercode || daily?.weather_code || [];
 
   return (
     <div className="card">
@@ -95,13 +108,13 @@ export default function Weather({ lang, farmerId }) {
           <div className="weather-now">
             <div className="weather-now-main">
               <span className="weather-big-icon">
-                {daily?.weathercode ? wmo(daily.weathercode[0], lang).icon : '🌡️'}
+                {weatherCodes.length ? wmo(weatherCodes[0], lang).icon : '🌡️'}
               </span>
               <div>
                 <div className="weather-temp">{weather.current.temp_celsius?.toFixed(1)}°C</div>
                 <div className="weather-place">{weather.district}{weather.state ? `, ${weather.state}` : ''}</div>
                 <div className="weather-cond">
-                  {daily?.weathercode ? wmo(daily.weathercode[0], lang).label : ''}
+                  {weatherCodes.length ? wmo(weatherCodes[0], lang).label : ''}
                 </div>
               </div>
             </div>
@@ -115,7 +128,7 @@ export default function Weather({ lang, farmerId }) {
           {daily && (
             <div className="forecast-grid">
               {daily.time?.map((date, i) => {
-                const { icon } = wmo(daily.weathercode?.[i] ?? 0, lang);
+                const { icon } = wmo(weatherCodes[i] ?? 0, lang);
                 return (
                   <div key={date} className="forecast-day">
                     <div className="fc-day">{dayLabel(date, lang)}</div>

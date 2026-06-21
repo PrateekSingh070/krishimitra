@@ -21,13 +21,16 @@ async function syncDistrict(district, state) {
 
   const url =
     `${config.ingest.openMeteoForecastUrl}?latitude=${geo.lat}&longitude=${geo.lon}` +
-    '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation' +
-    '&daily=precipitation_sum,temperature_2m_max,temperature_2m_min' +
+    '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code' +
+    '&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,weather_code' +
     '&forecast_days=7&timezone=Asia%2FKolkata';
   const resp = await fetch(url);
   if (!resp.ok) return 0;
   const json = await resp.json();
   const cur = json.current || {};
+  if (json.daily?.weather_code && !json.daily.weathercode) {
+    json.daily.weathercode = json.daily.weather_code;
+  }
 
   await query(
     `INSERT INTO weather_data (district, state, recorded_at, temp_celsius,

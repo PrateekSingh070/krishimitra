@@ -45,6 +45,71 @@ ON CONFLICT (crop_name) DO UPDATE SET
     ideal_temp_max  = EXCLUDED.ideal_temp_max,
     ideal_soil_types = EXCLUDED.ideal_soil_types;
 
+UPDATE crops SET crop_type = 'Cereal'    WHERE crop_name IN ('Wheat','Rice','Maize','Bajra','Jowar','Barley');
+UPDATE crops SET crop_type = 'Pulse'     WHERE crop_name IN ('Gram','Lentil','Moong');
+UPDATE crops SET crop_type = 'Oilseed'   WHERE crop_name IN ('Soybean','Groundnut','Mustard');
+UPDATE crops SET crop_type = 'Commercial' WHERE crop_name IN ('Cotton','Sugarcane');
+UPDATE crops SET crop_type = 'Fruit'     WHERE crop_name IN ('Watermelon','Muskmelon');
+UPDATE crops SET crop_type = 'Spice'     WHERE crop_name = 'Turmeric';
+UPDATE crops SET crop_type = 'Vegetable' WHERE crop_name IN ('Potato','Onion','Tomato','Cucumber');
+
+-- --- all common Indian vegetables ---------------------------------------------
+INSERT INTO crops (crop_name, crop_name_hindi, category, avg_grow_days, water_need_mm, ideal_temp_min, ideal_temp_max, ideal_soil_types, crop_type)
+VALUES
+ ('Brinjal','बैंगन','Kharif',100,400,22,32,'Loamy','Vegetable'),
+ ('Cabbage','पत्ता गोभी','Rabi',90,450,10,25,'Loamy','Vegetable'),
+ ('Cauliflower','फूल गोभी','Rabi',90,450,10,25,'Loamy','Vegetable'),
+ ('Carrot','गाजर','Rabi',90,400,10,25,'Sandy,Loamy','Vegetable'),
+ ('Radish','मूली','Rabi',45,350,10,25,'Loamy','Vegetable'),
+ ('Beetroot','चुकंदर','Rabi',60,350,10,25,'Loamy','Vegetable'),
+ ('Bottle Gourd','लौकी','Zaid',70,350,20,35,'Loamy','Vegetable'),
+ ('Bitter Gourd','करेला','Zaid',60,350,22,32,'Loamy','Vegetable'),
+ ('Ridge Gourd','तोरी','Kharif',60,350,22,32,'Loamy','Vegetable'),
+ ('Sponge Gourd','घिया','Kharif',60,350,22,32,'Loamy','Vegetable'),
+ ('Pumpkin','कद्दू','Kharif',90,400,20,35,'Loamy','Vegetable'),
+ ('Green Peas','हरा मटर','Rabi',70,400,10,25,'Loamy','Vegetable'),
+ ('French Beans','सेम','Kharif',60,350,18,28,'Loamy','Vegetable'),
+ ('Cowpea','लोबिया','Kharif',65,350,20,35,'Loamy','Vegetable'),
+ ('Okra','भिंडी','Kharif',60,350,25,35,'Loamy','Vegetable'),
+ ('Spinach','पालक','Rabi',45,300,10,25,'Loamy','Vegetable'),
+ ('Methi','मेथी','Rabi',45,300,10,25,'Loamy','Vegetable'),
+ ('Coriander','धनिया','Rabi',45,300,10,30,'Loamy','Vegetable'),
+ ('Green Chilli','हरी मिर्च','Kharif',90,350,20,35,'Loamy','Vegetable'),
+ ('Capsicum','शिमला मिर्च','Zaid',90,400,18,28,'Loamy','Vegetable'),
+ ('Ginger','अदरक','Kharif',240,800,20,30,'Loamy','Vegetable'),
+ ('Garlic','लहसुन','Rabi',150,400,10,25,'Loamy','Vegetable'),
+ ('Sweet Potato','शकरकंद','Kharif',120,450,20,35,'Sandy','Vegetable'),
+ ('Yam','जिमीकंद','Kharif',180,500,20,35,'Loamy','Vegetable'),
+ ('Tinda','टिंडा','Kharif',60,350,22,32,'Loamy','Vegetable'),
+ ('Pointed Gourd','परवल','Kharif',90,400,22,32,'Loamy','Vegetable'),
+ ('Drumstick','सहजन','Kharif',180,400,22,35,'Loamy','Vegetable'),
+ ('Colocasia','अरबी','Kharif',120,500,20,35,'Loamy','Vegetable'),
+ ('Amaranth','चौलाई','Kharif',45,300,20,35,'Loamy','Vegetable'),
+ ('Muskmelon','खरबूजा','Zaid',85,400,24,32,'Sandy,Loamy','Fruit'),
+ ('Cluster Beans','ग्वार फली','Kharif',70,350,25,35,'Loamy','Vegetable'),
+ ('Turnip','शलजम','Rabi',60,350,10,25,'Loamy','Vegetable'),
+ ('Knol Khol','गाठ गोभी','Rabi',60,350,10,25,'Loamy','Vegetable'),
+ ('Broccoli','ब्रोकली','Rabi',80,400,10,22,'Loamy','Vegetable'),
+ ('Mushroom','मशरूम','Zaid',45,400,15,25,'Loamy','Vegetable'),
+ ('Ash Gourd','पेठा','Kharif',120,400,22,35,'Loamy','Vegetable'),
+ ('Snake Gourd','चिचिंडा','Kharif',60,350,22,32,'Loamy','Vegetable'),
+ ('Ivy Gourd','कुंदरु','Kharif',60,350,22,32,'Loamy','Vegetable'),
+ ('Spring Onion','हरा प्याज','Rabi',60,350,10,25,'Loamy','Vegetable'),
+ ('Mint','पुदीना','Zaid',45,300,15,30,'Loamy','Vegetable'),
+ ('Curry Leaves','कड़ी पत्ता','Kharif',365,400,20,35,'Loamy','Vegetable'),
+ ('Mustard Greens','सरसों साग','Rabi',45,300,10,25,'Loamy','Vegetable'),
+ ('Lettuce','सलाद पत्ता','Rabi',45,350,10,22,'Loamy','Vegetable'),
+ ('Green Beans','बीन','Kharif',60,350,18,28,'Loamy','Vegetable')
+ON CONFLICT (crop_name) DO UPDATE SET
+    crop_name_hindi = EXCLUDED.crop_name_hindi,
+    category        = EXCLUDED.category,
+    crop_type       = EXCLUDED.crop_type,
+    avg_grow_days   = EXCLUDED.avg_grow_days,
+    water_need_mm   = EXCLUDED.water_need_mm,
+    ideal_temp_min  = EXCLUDED.ideal_temp_min,
+    ideal_temp_max  = EXCLUDED.ideal_temp_max,
+    ideal_soil_types = EXCLUDED.ideal_soil_types;
+
 -- --- government schemes (idempotent upsert) -----------------------------------
 INSERT INTO government_schemes (scheme_name, scheme_name_hi, ministry, benefit_amount, eligibility_json, apply_url, deadline)
 VALUES

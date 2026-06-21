@@ -10,7 +10,8 @@ router.get(
   asyncHandler(async (req, res) => {
     const cropId = req.query.crop_id ? Number(req.query.crop_id) : null;
     const mandi = req.query.mandi || null;
-    res.json({ items: await latestPrices(cropId, mandi) });
+    const cropType = req.query.crop_type || null;
+    res.json({ items: await latestPrices(cropId, mandi, cropType) });
   }),
 );
 

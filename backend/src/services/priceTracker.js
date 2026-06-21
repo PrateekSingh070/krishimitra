@@ -98,9 +98,9 @@ export async function recordPrice({
 }
 
 // Latest price per crop+mandi (for GET /mandi-prices).
-export async function latestPrices(cropId = null, mandi = null) {
+export async function latestPrices(cropId = null, mandi = null, cropType = null) {
   return rows(
-    `SELECT mp.price_id, mp.crop_id, c.crop_name, c.crop_name_hindi,
+    `SELECT mp.price_id, mp.crop_id, c.crop_name, c.crop_name_hindi, c.crop_type,
             mp.mandi_name, mp.district, mp.state, mp.price_per_qtl, mp.recorded_date
      FROM mandi_prices mp
      JOIN crops c ON c.crop_id = mp.crop_id
@@ -109,8 +109,9 @@ export async function latestPrices(cropId = null, mandi = null) {
        WHERE mp2.crop_id = mp.crop_id AND mp2.mandi_name = mp.mandi_name)
        AND ($1::bigint IS NULL OR mp.crop_id = $1)
        AND ($2::text IS NULL OR mp.mandi_name = $2)
+       AND ($3::text IS NULL OR c.crop_type = $3)
      ORDER BY c.crop_name, mp.mandi_name`,
-    [cropId, mandi],
+    [cropId, mandi, cropType],
   );
 }
 

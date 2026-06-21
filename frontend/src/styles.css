@@ -53,6 +53,27 @@ body {
 .card h2 { margin-top: 0; color: var(--green-dark); }
 .hint { color: var(--muted); font-size: 0.88rem; margin: -4px 0 12px; }
 
+.price-toolbar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.filter-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.search-input {
+  width: 100%;
+  max-width: 420px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
 button {
   background: var(--green); color: #fff; border: none; border-radius: 6px;
   padding: 8px 16px; cursor: pointer; font-size: 0.95rem; margin-top: 10px;

@@ -66,11 +66,13 @@ CREATE TABLE crops (
     ideal_temp_min   integer,
     ideal_temp_max   integer,
     ideal_soil_types varchar(200),
+    crop_type        varchar(20),                     -- Cereal / Pulse / Vegetable / Fruit / Spice / Oilseed / Commercial
     created_at       timestamptz   DEFAULT now() NOT NULL,
     updated_at       timestamptz   DEFAULT now() NOT NULL,
     created_by       varchar(100)  DEFAULT current_user,
     CONSTRAINT uq_crops_name       UNIQUE (crop_name),
     CONSTRAINT ck_crops_category   CHECK (category IS NULL OR category IN ('Kharif', 'Rabi', 'Zaid')),
+    CONSTRAINT ck_crops_type       CHECK (crop_type IS NULL OR crop_type IN ('Cereal','Pulse','Vegetable','Fruit','Spice','Oilseed','Commercial')),
     CONSTRAINT ck_crops_grow_days  CHECK (avg_grow_days IS NULL OR avg_grow_days > 0),
     CONSTRAINT ck_crops_temp_range CHECK (ideal_temp_min IS NULL OR ideal_temp_max IS NULL OR ideal_temp_min <= ideal_temp_max)
 );

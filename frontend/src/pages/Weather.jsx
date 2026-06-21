@@ -55,20 +55,25 @@ export default function Weather({ lang, farmerId }) {
     }).catch(() => {});
   }, [farmerId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function fetchWeather(d, stateOverride = null, fallbackLocation = null) {
+  async function fetchWeather(d, stateOverride = undefined, fallbackLocation = null) {
     const trimmed = String(d || '').trim();
     if (!trimmed) return;
     setLoading(true);
     setError('');
     setWeather(null);
+    const stateParam = stateOverride === undefined ? '' : (stateOverride ?? '');
     try {
-      const data = await api.get(`/weather?district=${encodeURIComponent(trimmed)}&state=${encodeURIComponent(stateOverride ?? profile?.state ?? '')}`);
+      const data = await api.get(
+        `/weather?district=${encodeURIComponent(trimmed)}&state=${encodeURIComponent(stateParam)}`,
+      );
       setWeather(data);
     } catch (err) {
       const fallback = String(fallbackLocation || '').trim();
       if (err.status === 404 && fallback && fallback.toLowerCase() !== trimmed.toLowerCase()) {
         try {
-          const data = await api.get(`/weather?district=${encodeURIComponent(fallback)}&state=${encodeURIComponent(stateOverride ?? profile?.state ?? '')}`);
+          const data = await api.get(
+            `/weather?district=${encodeURIComponent(fallback)}&state=${encodeURIComponent(stateParam)}`,
+          );
           setDistrict(fallback);
           setWeather(data);
           return;
@@ -94,9 +99,9 @@ export default function Weather({ lang, farmerId }) {
           value={district}
           onChange={(e) => setDistrict(e.target.value)}
           placeholder={lang === 'hi' ? 'ज़िला दर्ज करें' : 'Enter district name'}
-          onKeyDown={(e) => e.key === 'Enter' && fetchWeather(district)}
+          onKeyDown={(e) => e.key === 'Enter' && fetchWeather(district, '')}
         />
-        <button onClick={() => fetchWeather(district)} disabled={loading || !district}>
+        <button onClick={() => fetchWeather(district, '')} disabled={loading || !district}>
           {loading ? '…' : lang === 'hi' ? 'खोजें' : 'Search'}
         </button>
       </div>
